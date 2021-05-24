@@ -10,15 +10,5 @@
   "scripts": {
     "start": "npm run transform-tokens",
     "transform-tokens": "style-dictionary build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/lukasoppermann/design-token-transformer.git"
-  },
-  "author": "Lukas Oppermann",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/lukasoppermann/design-token-transformer/issues"
-  },
-  "homepage": "https://github.com/lukasoppermann/design-token-transformer#readme"
+  }
 }
