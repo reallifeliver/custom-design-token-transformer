@@ -73,8 +73,6 @@ function generateStructure(obj) {
 
 function getHex(rgba) {
   const match = rgba.match(/^rgba?\(([0-9,/\s]*)\)/i);
-  console.log(rgba, match);
-
   if (!match || !match[1]) return rgba;
   const [r, g, b, a] = match[1]
     .replace(/\s/g, '')
