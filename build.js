@@ -58,7 +58,6 @@ StyleDictionary.registerFormat({
 });
 
 function generateStructure(obj) {
-  if (obj.value) return obj.value;
   const rtn = {};
   for (let key in obj) {
     if (obj[key].value) {
