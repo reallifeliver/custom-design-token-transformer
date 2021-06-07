@@ -1,25 +1,22 @@
-const {
-  default: multiDepthJsonFormatter,
-} = require('./formatters/mulit-depth-json');
 const { default: getHex } = require('./utils/getHex');
 
 const StyleDictionary = require('style-dictionary').extend({
   source: ['tokens/*.json'],
-  transform: {
-    // Now we can use the transform 'myTransform' below
-    myTransform: {
-      type: 'name',
-      transformer: (token) => token.path.join('_').toUpperCase(),
-    },
-  },
-  format: {
-    myFormat: ({ dictionary, platform }) => {
-      console.log(dictionary);
-      return dictionary.allTokens
-        .map((token) => `${token.name}: ${token.value}`)
-        .join('\n');
-    },
-  },
+  // transform: {
+  //   // Now we can use the transform 'myTransform' below
+  //   myTransform: {
+  //     type: 'name',
+  //     transformer: (token) => token.path.join('_').toUpperCase(),
+  //   },
+  // },
+  // format: {
+  //   myFormat: ({ dictionary, platform }) => {
+  //     console.log(dictionary);
+  //     return dictionary.allTokens
+  //       .map((token) => `${token.name}: ${token.value}`)
+  //       .join('\n');
+  //   },
+  // },
   platforms: {
     // test: {
     //   transform: ['myTransform'],
@@ -65,27 +62,45 @@ const StyleDictionary = require('style-dictionary').extend({
   },
 });
 
+const GLOBAL = 'global';
 StyleDictionary.registerFormat({
   name: 'json/clo-set',
   formatter: function (dictionary, config) {
     const allTokens = dictionary.allProperties;
-    console.log(allTokens);
-    const data = allTokens.reduce((acc, cur) => {
-      let { value, name, path } = cur;
-      name = path.join('_').replace(/[- ]/g, '_').toUpperCase();
-      acc[name] = getHex(value);
-      return acc;
-    }, {});
 
-    return JSON.stringify(data);
-  },
-});
+    const aliasTokens = allTokens.filter(
+      (item) => !item.path[0].includes(GLOBAL)
+    );
 
-StyleDictionary.registerFormat({
-  name: 'json/test',
-  formatter: function (dictionary, config) {
-    // return JSON.stringify(dictionary);
-    return multiDepthJsonFormatter(dictionary, config);
+    const globalTokens = allTokens
+      .filter((item) => item.path[0].includes(GLOBAL))
+      .map((item) => {
+        item.path.shift();
+        return item;
+      });
+
+    console.log(aliasTokens);
+
+    const preprocessedToken = {};
+    const globalTokenMap = {};
+
+    for (let i = 0; i < globalTokens.length; i++) {
+      const { path, value } = globalTokens[i];
+      const key = path.join('_').replace(/[- ]/g, '_').toUpperCase();
+      const hexValue = getHex(value);
+      preprocessedToken[key] = hexValue;
+      globalTokenMap[hexValue] = key;
+    }
+
+    for (let i = 0; i < aliasTokens.length; i++) {
+      const { path, value } = aliasTokens[i];
+      const key = path.join('_').replace(/[- ]/g, '_').toUpperCase();
+      const hexValue = getHex(value);
+      const globalMappedKey = globalTokenMap[hexValue];
+      preprocessedToken[key] = globalMappedKey ? `{${globalMappedKey}}` : value;
+    }
+
+    return JSON.stringify(preprocessedToken);
   },
 });
 

@@ -8,7 +8,6 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "npm run transform-tokens",
-    "transform-tokens": "style-dictionary build"
+    "build": "node build.js"
   }
 }
